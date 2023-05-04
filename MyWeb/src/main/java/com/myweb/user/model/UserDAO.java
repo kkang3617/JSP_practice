@@ -3,10 +3,13 @@ package com.myweb.user.model;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+
+import org.apache.catalina.connector.Response;
 
 //DAO(data Access Object)
 //웹 프로그램에서 데이터베이스 CRUD 작업이 요구될 때마다
@@ -70,5 +73,78 @@ public class UserDAO {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public int userCheck(String id, String pw) {
+		int check = 0;
+		String sql = "SELECT user_pw FROM my_user "
+					+ "WHERE user_id=?";
+		
+		try(Connection conn = ds.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, id);
+			ResultSet rs = pstmt.executeQuery();
+			
+			if(rs.next()) {  // 조회결과 있음(id가 있음) pw로 판별 가능해서 위 sql처럼 씀.
+				String dbPw = rs.getString("user_pw");
+				if(dbPw.equals(pw)) { //db에 있는 pw가 입력pw와 같다면
+					check = 1;  //check 1 리턴
+				} else {
+					check = 0;  // 다르다면 check 0 리턴
+				}
+			} else { // 조회결과가 없으면(행이 없으면)
+				check = -1;
+			}		
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return check;
+				
+		
+		
+	}
+
+	public UserVO getUserInfo(String id) {
+		UserVO user = null;
+		String sql = "SELECT * FROM my_user"
+					+ " WHERE user_id='" + id + "'"; // WHWER절 조건 id=입력한id
+		try(Connection conn = ds.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+				ResultSet rs = pstmt.executeQuery()) {
+			if(rs.next()) {
+				user = new UserVO(
+							rs.getString("user_id"),
+							rs.getString("user_pw"),
+							rs.getString("user_name"),
+							rs.getString("user_email"),
+							rs.getString("user_address")
+						);
+			}
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
+		return user;
+	}
+
+	public void changePassword(String userId, String newPw) {
+		String sql = "UPDATE my_user SET user_pw = ? WHERE user_id= ?";
+		try(Connection conn = ds.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql)){
+			pstmt.setString(1, newPw);
+			pstmt.setString(2, userId);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		 
 	}
 }

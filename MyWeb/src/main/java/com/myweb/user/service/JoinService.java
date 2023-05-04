@@ -15,7 +15,7 @@ public class JoinService implements IUserService {
 	public void execute(HttpServletRequest request, HttpServletResponse response) {
 		
 		String id = request.getParameter("id");
-		UserDAO dao = UserDAO.getInstance();
+		UserDAO dao = UserDAO.getInstance(); // dao  주소값 받아오기.
 		
 		response.setContentType("text/html; charset=UTF-8");
 		String htmlCode;
