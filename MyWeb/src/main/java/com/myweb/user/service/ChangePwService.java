@@ -10,7 +10,7 @@ import javax.servlet.http.HttpSession;
 import com.myweb.user.model.UserDAO;
 import com.myweb.user.model.UserVO;
 
-public class changePwService implements IUserService {
+public class ChangePwService implements IUserService {
 
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) {
@@ -26,34 +26,34 @@ public class changePwService implements IUserService {
 	    5. 현재 비밀번호가 불일치 -> "현재 비밀번호가 다릅니다." 경고창 출력 후 뒤로가기.
 	    */
 
-		String oldPw = request.getParameter("old_pw");
-		String newPw = request.getParameter("new_pw");
+		String oldPw = request.getParameter("old_pw"); // 기존비번 
+		String newPw = request.getParameter("new_pw"); // 변경비번 가져오기
 		
-		UserDAO dao = UserDAO.getInstance();
+		UserDAO dao = UserDAO.getInstance(); // dao 주소값 받아오기
 		response.setContentType("text/html; charset=UTF-8");
 		String htmlCode;
-		PrintWriter out;
+		PrintWriter out = null;
 		
 		HttpSession session = request.getSession();
 		
 		UserVO user = (UserVO) session.getAttribute("user"); //세션에서 user를 받아옴
 		
-		int result = dao.userCheck(user.getUserId(), oldPw);
+		int result = dao.userCheck(user.getUserId(), oldPw); //getUserId =세션에서 id받아온것 
 		
 		try {
 			out = response.getWriter();
-			if(result == 1 ) {
+			if(result == 1 ) {  // 기존 비밀번호가 일치한다면~
 				
 				dao.changePassword(user.getUserId(), newPw);
 				htmlCode =  "<script>\r\n"
-						+ "alert('비밀번호가 변경되었습니다.');\r\n"
+						+ "alert('비밀번호가 정상적으로 변경되었습니다.');\r\n"
 						+ "location.href='/MyWeb/myPage.user';\r\n" 
 						+ "</script>";
 				out.print(htmlCode);
 				out.flush(); // 밖으로 밀어내 줌.
-			} else {
+			} else {  // 기존 비밀번호와 일치하지 않다면~
 				htmlCode = "<script>\r\n"
-						+ "alert('비밀번호가 틀렸습니다.');\r\n"
+						+ "alert('현재 비밀번호가 틀렸습니다.');\r\n"
 						+ "history.back();\r\n" //뒤로가기
 						+ "</script>";
 				out.print(htmlCode);
@@ -62,6 +62,8 @@ public class changePwService implements IUserService {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			out.close();
 		}
 		
 	}
