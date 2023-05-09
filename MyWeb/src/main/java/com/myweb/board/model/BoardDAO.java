@@ -16,8 +16,8 @@ public class BoardDAO implements IBoardDAO {
 		//커넥션 풀 정보를 담을 변수 선언
 		private DataSource ds;
 		
-		private BoardDAO() {
-			//커넥션 풀 정보 불러오기.
+		private BoardDAO() { //객체가 생성되자마자
+			//커넥션 풀 정보 불러와라.
 			try {
 				InitialContext ct = new InitialContext();
 				ds = (DataSource) ct.lookup("java:comp/env/jdbc/myOracle");
@@ -47,7 +47,7 @@ public class BoardDAO implements IBoardDAO {
 			pstmt.setString(1, writer); //물음표 첫번째
 			pstmt.setString(2, title);  //물음표 두번째
 			pstmt.setString(3, content); //물음표 세번째
-			pstmt.executeUpdate(); //실행
+			pstmt.executeUpdate(); //실행 INSERT,UPDATE,DELETE executeUpdate, SELECT executeQuery
 			
 		} catch (SQLException e) {
 
@@ -84,20 +84,95 @@ public class BoardDAO implements IBoardDAO {
 
 	@Override
 	public BoardVO contentBoard(int bId) {
-		// TODO Auto-generated method stub
-		return null;
+		BoardVO vo = null;
+		String sql = "SELECT * FROM my_board WHERE board_id=?";
+		try(Connection conn = ds.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);) {
+			pstmt.setInt(1, bId); //첫번째 물음표
+			ResultSet rs = pstmt.executeQuery(); // sql 문실행. 여기까지가 sql문 
+			
+			if(rs.next()) {
+				vo = new BoardVO( //객체 포장하기
+						rs.getInt("board_id"),
+						rs.getString("writer"),
+						rs.getString("title"),
+						rs.getString("content"),
+						rs.getTimestamp("reg_date").toLocalDateTime(),
+						rs.getInt("hit")
+						);
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return vo; // 객체포장된 값 리턴
 	}
 
 	@Override
 	public void updateBoard(String title, String content, int bId) {
-		// TODO Auto-generated method stub
+		
+		String sql = "UPDATE my_board SET title=?, content=? WHERE board_id=" + bId ; // update 조회테이블 set 수정할컬럼=? where 조건
+		try(Connection conn = ds.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, title);
+			pstmt.setString(2, content);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 
 	}
 
 	@Override
 	public void deleteBoard(int bId) {
-		// TODO Auto-generated method stub
-
+		String sql = "DELETE FROM my_board WHERE board_id=" + bId;
+		try(Connection conn = ds.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
 	}
-
+	
+	@Override
+	public List<BoardVO> searchBoard(String keyword, String category) {
+		List<BoardVO> searchList = new ArrayList<>();
+		String sql = "SELECT * FROM my_board "
+				+ "WHERE " + category + " like ?";
+		try(Connection conn = ds.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, "%" + keyword + "%");
+			ResultSet rs = pstmt.executeQuery(); // 여기까지 sql , 실행
+			while(rs.next()) {
+				BoardVO vo = new BoardVO(  // 객체포장
+						rs.getInt("board_id"),
+						rs.getString("writer"),
+						rs.getString("title"),
+						rs.getString("content"),
+						rs.getTimestamp("reg_date").toLocalDateTime(),
+						rs.getInt("hit")
+						);
+				searchList.add(vo);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return searchList;
+	}
+	
+	@Override
+	public void upHit(int bId) {
+		String sql = "UPDATE my_board SET hit=hit+1 WHERE board_id=?";
+		try(Connection conn = ds.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setInt(1, bId);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	
+	}
+	
 }

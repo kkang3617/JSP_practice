@@ -1,7 +1,7 @@
 
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <!DOCTYPE html>
@@ -25,7 +25,12 @@
 </head>
 <body>
 
-	
+	<c:if test="${user == null}">
+		<script>
+			alert('회원만 이용 가능한 게시판입니다. 로그인 해 주세요.');
+			location.href="/MyWeb/loginPage.user";
+		</script>
+	</c:if>
 
 	<jsp:include page="../include/header.jsp"/>
 
@@ -52,11 +57,16 @@
 			
 			<tbody>
 				<c:forEach var="b" items="${requestScope.boardList}" > <!-- 배열이나 list면 items써야함~-->
-					<tr>                             		    <!-- boardlist 개수 만큼 반복문이 돌아감 -->
+					<tr>                <!--requestScope 생략하면 알아서 찾아감.(가능), boardlist 개수 만큼 반복문이 돌아감 -->
 						<td>${b.boardId}</td>
 						<td>${b.writer}</td>
-						<td>${b.title}</td>
-						<td>${b.regDate}</td>
+						<td>
+							<a href="/MyWeb/content.board?bId=${b.boardId}">${b.title}</a>
+						</td>
+						<td>
+							<fmt:parseDate value="${b.regDate}" pattern = "yyyy-MM-dd'T'HH:mm:ss" var ="parsedDateTime" type="both"/>
+							<fmt:formatDate value="${parsedDateTime}" pattern="yyyy년 MM월 dd일 HH시 mm분"/>
+						</td>
 						<td>${b.hit}</td>
 					</tr>
 				</c:forEach>

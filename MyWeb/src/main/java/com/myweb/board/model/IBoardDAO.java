@@ -4,10 +4,10 @@ import java.util.List;
 
 public interface IBoardDAO {
 
-	//글 등록 메서드
+	//글 등록 메서드      INSERT 하고 리턴할 필요없다 void
 	void regist(String writer, String title, String content);
 	
-	//글 전체 목록을 가지고 오는 메서드
+	//글 전체 목록을 가지고 오는 메서드      
 	List<BoardVO> listBoard();
 	
 	//글 상세보기 요청을 처리할 메서드
@@ -19,4 +19,9 @@ public interface IBoardDAO {
 	//글 삭제 요청을 처리할 메서드
 	void deleteBoard(int bId); //삭제하고 받을게 없음 그래서 void
 	
+	//글 검색 요청을 처리할 메서드
+	List<BoardVO> searchBoard(String keyword, String category);
+	
+	//조회수를 올려주느 메서드
+	void upHit(int bId);
 }

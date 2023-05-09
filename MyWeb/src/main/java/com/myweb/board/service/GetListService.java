@@ -14,7 +14,7 @@ public class GetListService implements IBoardService {
 	public void execute(HttpServletRequest request, HttpServletResponse response) {
 		
 		BoardDAO dao = BoardDAO.getInstance();
-		List<BoardVO> boardList =  dao.listBoard();
+		List<BoardVO> boardList =  dao.listBoard(); //listBoard메서드를 불러옴. BoardDAO에서
 		
 		//왜 session을 사용하지않고 request를 사용하는가?
 		//데이터베이스로부터 받아온 글 목록은 일시적인 데이터이다.
@@ -22,7 +22,7 @@ public class GetListService implements IBoardService {
 		//이러한 데이터를 굳이 session에 담아서 유지할 필요가 있을까?
 		//응답이 나가고 나서 자동으로 소멸할 수 있도록 request에 담아서
 		//화면으로 전달하고자 한다.
-		request.setAttribute("boardList", boardList);  
+		request.setAttribute("boardList", boardList);//boardList로 이름지어주고, boardList 값을 넣어줌.  
 
 	}
 

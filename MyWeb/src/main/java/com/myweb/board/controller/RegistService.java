@@ -15,7 +15,7 @@ public class RegistService implements IBoardService {
 		String title = request.getParameter("bTitle");
 		String content = request.getParameter("bContent");
 		
-		BoardDAO.getInstance().regist(writer, title, content); 
+		BoardDAO.getInstance().regist(writer, title, content); //BoardDAO의 주소값을 불러오고,~
 
 	}
 
