@@ -11,6 +11,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import com.myweb.board.commons.PageVO;
+
 public class BoardDAO implements IBoardDAO {
 
 		//커넥션 풀 정보를 담을 변수 선언
@@ -57,9 +59,18 @@ public class BoardDAO implements IBoardDAO {
 	}
 
 	@Override
-	public List<BoardVO> listBoard() {
+	public List<BoardVO> listBoard(PageVO paging) {
 		List<BoardVO> articles = new ArrayList<>();
-		String sql = "SELECT * FROM my_board ORDER BY board_id DESC";
+		String sql = "SELECT * FROM"
+				+ "    ("
+				+ "    SELECT ROWNUM AS rn, tbl.* FROM\r\n"
+				+ "        ("
+				+ "        SELECT * FROM my_board"
+				+ "        ORDER BY board_id DESC"
+				+ "        ) tbl"
+				+ "    )"
+				+ "WHERE rn > " + (paging.getPage()-1) * paging.getCpp()
+				+ " AND rn <= " + paging.getPage() * paging.getCpp();
 		try(Connection conn = ds.getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql);
 				ResultSet rs = pstmt.executeQuery()) {
@@ -174,5 +185,23 @@ public class BoardDAO implements IBoardDAO {
 		}
 	
 	}
+	
+	@Override
+	public int countArticles() {
+		int count = 0;
+		String sql = "SELECT COUNT(*) FROM my_board";
+		try(Connection conn = ds.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+				ResultSet rs = pstmt.executeQuery()) {
+			if(rs.next()) { // 행이 존재한다면(검색결과가 존재한다면)
+				count = rs.getInt("count(*)");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return count;
+	}
+	
 	
 }

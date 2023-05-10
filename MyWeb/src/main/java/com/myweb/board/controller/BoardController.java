@@ -31,7 +31,6 @@ public class BoardController extends HttpServlet {
      
     }
 
-	
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		if(request.getMethod().equals("POST")) { //요청방식이 POST 방식이면(get은 한글 안깨짐 post만 깨짐.)

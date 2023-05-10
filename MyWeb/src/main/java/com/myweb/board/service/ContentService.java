@@ -30,21 +30,21 @@ public class ContentService implements IBoardService {
 		Cookie[] cookies = request.getCookies(); //쿠키를 요청한다, 쿠키가 여러개니 배열로 받는다. getcookies()에 올려서 배열로받는 것 확인.
 		boolean flag = false; //내가 찾는 쿠키의 존재유무를 파악할 변수
 		if(cookies != null) {//쿠키가 존재한다면
-			for(Cookie cookie : cookies) {
-				if(cookie.getName().equals(bId+"")) { 
-			
-					flag=true; 
+			for(Cookie cookie : cookies) { //cookies들을 나열한다.
+				if(cookie.getName().equals(bId+"")) {  //쿠키이름이 bId와 같다면 
+					flag=true;    // flag를 true로 바꾼다. 
 					break;
 				} 
 				
 			}
 			
 		} if(!flag) { //쿠키가 존재하지 않는다면
-			dao.upHit(bId);
+			Cookie hitCoo = new Cookie(bId+"", "c" ); // 쿠키를 만들어준다.
+			hitCoo.setMaxAge(15); // 쿠키의 수명을 15초로 지정.
+			response.addCookie(hitCoo); //서버에 올림.
 			
-			Cookie c = new Cookie(bId+"", "c" );
-			c.setMaxAge(15);
-			response.addCookie(c); //서버에 올림.
+			dao.upHit(bId); //해당게시글 bId의 hit(조회수)를 올린다.
+			
 		}
 		
 //		dao.upHit(bId); // 조회수 올리기 contentBoard부르기 전에 조회수 먼저 올려줘야함.
